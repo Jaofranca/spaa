@@ -6,7 +6,7 @@ class CommomUserController extends ChangeNotifier {
   final HttpClient httpClient;
   CommomUserController(this.httpClient);
 
-  List<CommonUser> users = [];
+  List<User> users = [];
 
   void getUsers() async {}
   void deleteUser() async {}

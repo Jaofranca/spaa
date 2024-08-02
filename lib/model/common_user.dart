@@ -1,12 +1,12 @@
-class CommonUser {
+class User {
   final String id;
   final String name;
   final String accessId;
 
-  CommonUser({required this.name, required this.accessId, required this.id});
+  User({required this.name, required this.accessId, required this.id});
 
   static fromMap(Map<String, dynamic> map) {
-    return CommonUser(
+    return User(
         name: map['name'] as String,
         accessId: map['AccessId'] as String,
         id: map['Id'] as String);
