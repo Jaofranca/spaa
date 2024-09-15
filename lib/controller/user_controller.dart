@@ -29,6 +29,26 @@ class UserController extends ChangeNotifier {
     }
   }
 
+  Future<List<User>> getUsersWithoutRoom() async {
+    try {
+      final response = await httpClient.request(
+          url: '${AppConstants.appUrl}/user', method: MethodEnum.get);
+      final List<User> usersList = List.from(
+        response['users'].map(
+          (userMap) {
+            return User.fromMap(userMap);
+          },
+        ),
+      );
+      users = usersList;
+
+      notifyListeners();
+      return usersList;
+    } on HttpError {
+      rethrow;
+    }
+  }
+
   void deleteUser() async {}
   void editUser() async {}
 }

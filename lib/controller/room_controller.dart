@@ -10,7 +10,7 @@ class RoomController extends ChangeNotifier {
 
   List<Room> rooms = [];
   Room selectedRoom = Room(
-    id: "",
+    id: 0,
     name: '',
     users: [],
   );

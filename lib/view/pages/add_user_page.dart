@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:spaa/controller/room_controller.dart';
 import 'package:spaa/controller/user_controller.dart';
 import 'package:spaa/core/styles/app_fonts.dart';
 import 'package:spaa/model/user.dart';
@@ -13,18 +14,34 @@ class AddUserPage extends StatefulWidget {
 
 class _AddUserPageState extends State<AddUserPage> {
   late UserController userController;
+  late RoomController roomController;
+  bool _isLoading = true;
+  List<bool> selectedIndex = [];
+  List<User?> _selectedRows = [];
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    userController = Provider.of<UserController>(context);
-    userController.getUsers();
+  void initState() {
+    super.initState();
+    // Initialize controllers here
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      roomController = context.read<RoomController>();
+      userController = context.read<UserController>();
+      await userController.getUsers();
+      selectedIndex = List.filled(userController.users.length, false);
+      setState(() {
+        _isLoading = false;
+      });
+    });
   }
 
-  List<User?> _selectedRows = [];
-  List<bool> selectedIndex = [];
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return SafeArea(
       child: Scaffold(
         floatingActionButton: IconButton(
@@ -72,9 +89,11 @@ class _AddUserPageState extends State<AddUserPage> {
                         style: Theme.of(context).textTheme.smallText,
                       )),
                     ], rows: [
-                      for (int i = 0; i < userController.users.length; i++) ...[
+                      for (int i = 0;
+                          i < context.read<UserController>().users.length;
+                          i++) ...[
                         DataRow(
-                            selected: selectedIndex[i],
+                            // selected: selectedIndex[i],
                             onSelectChanged: (bool? selected) {
                               setState(() {
                                 selectedIndex[i] = selected ?? false;

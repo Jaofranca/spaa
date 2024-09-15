@@ -15,15 +15,7 @@ class RoomCard extends StatelessWidget {
       child: Card(
         color: kcardColor,
         child: ListTile(
-          onTap: () {
-            onTap;
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const RoomPage(),
-              ),
-            );
-          },
+          onTap: onTap,
           title: Text(
             title,
             style: Theme.of(context).textTheme.mediumText,

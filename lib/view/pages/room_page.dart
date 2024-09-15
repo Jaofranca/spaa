@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:spaa/controller/room_controller.dart';
-import 'package:spaa/controller/user_controller.dart';
 import 'package:spaa/core/infra/http/http_adapter.dart';
 
 import 'package:spaa/core/styles/app_fonts.dart';
-import 'package:spaa/model/room.dart';
 import 'package:spaa/view/pages/add_user_page.dart';
 import 'package:spaa/view/widgets/modal_bottom_custom.dart';
 
@@ -19,17 +17,11 @@ class RoomPage extends StatefulWidget {
 
 class _RoomPageState extends State<RoomPage> {
   final HttpAdapter http = HttpAdapter(Client());
-  late UserController userController;
-  late RoomController roomController;
-  late Room room;
+  // late UserController userController;
+  // late RoomController roomController;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    userController = Provider.of<UserController>(context);
-    roomController = Provider.of<RoomController>(context);
-    room = roomController.selectedRoom;
-  }
+  //  userController = Provider.of<UserController>(context);
+  //  roomController = Provider.of<RoomController>(context);
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +70,8 @@ class _RoomPageState extends State<RoomPage> {
                         style: Theme.of(context).textTheme.smallText,
                       )),
                     ], rows: [
-                      for (var i in room.users)
+                      for (var i
+                          in context.read<RoomController>().selectedRoom.users)
                         DataRow(cells: [
                           DataCell(
                               Text(i.name,

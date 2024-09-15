@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:spaa/controller/room_controller.dart';
 import 'package:spaa/controller/user_controller.dart';
 import 'package:spaa/core/infra/http/http_adapter.dart';
+import 'package:spaa/view/pages/room_page.dart';
 import 'package:spaa/view/widgets/room_card.dart';
 import 'package:spaa/core/styles/app_fonts.dart';
 
@@ -18,17 +19,35 @@ class _HomePageState extends State<HomePage> {
   final HttpAdapter http = HttpAdapter(Client());
   late UserController userController;
   late RoomController roomController;
+  bool _isLoading = true;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    userController = Provider.of<UserController>(context);
-    roomController = Provider.of<RoomController>(context);
-    roomController.getRooms();
+  void initState() {
+    super.initState();
+    // Initialize controllers here
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      roomController = context.read<RoomController>();
+      await roomController.getRooms();
+      setState(() {
+        _isLoading = false;
+      });
+    });
   }
+
+  // Future<void> _loadRooms() async {
+  //   userController = Provider.of<UserController>(context, listen: false);
+  //   roomController = Provider.of<RoomController>(context, listen: false);
+  //   await roomController.getRooms();
+  // }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return SafeArea(
       child: Scaffold(
         drawer: Drawer(
@@ -49,15 +68,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         appBar: AppBar(
-          actions: const [
-            Padding(
-              padding: EdgeInsets.only(right: 8),
-              child: CircleAvatar(
-                backgroundColor: Colors.red,
-                radius: 20,
-              ),
-            )
-          ],
+          actions: const [],
           centerTitle: true,
           title: Text("Salas",
               style: Theme.of(context)
@@ -66,19 +77,27 @@ class _HomePageState extends State<HomePage> {
                   .copyWith(fontWeight: FontWeight.bold)),
         ),
         body: SizedBox(
-            child: Column(children: [
-          Text(
-            "Escolha sua Sala",
-            style: Theme.of(context).textTheme.mediumText,
-          ),
-          for (var i in roomController.rooms)
-            RoomCard(
-              title: i.name,
-              onTap: () {
-                roomController.selectRoom(i);
-              },
-            ),
-        ])),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+              Text(
+                "Escolha sua Sala",
+                style: Theme.of(context).textTheme.mediumText,
+              ),
+              for (var i in context.read<RoomController>().rooms)
+                RoomCard(
+                  title: i.name,
+                  onTap: () {
+                    context.read<RoomController>().selectRoom(i);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RoomPage(),
+                      ),
+                    );
+                  },
+                ),
+            ])),
       ),
     );
   }
