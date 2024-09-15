@@ -1,8 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'package:provider/provider.dart';
+import 'package:spaa/controller/room_controller.dart';
+import 'package:spaa/controller/user_controller.dart';
+import 'package:spaa/core/infra/http/http_adapter.dart';
+
 import 'package:spaa/view/pages/home_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider(create: (_) => HttpAdapter(Client())),
+        ChangeNotifierProvider(
+            create: (_) => UserController(_.read<HttpAdapter>())),
+        ChangeNotifierProvider(
+            create: (_) => RoomController(_.read<HttpAdapter>())),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

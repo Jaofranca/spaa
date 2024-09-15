@@ -5,7 +5,8 @@ import 'package:spaa/view/pages/room_page.dart';
 
 class RoomCard extends StatelessWidget {
   final String title;
-  const RoomCard({super.key, required this.title});
+  final void Function() onTap;
+  const RoomCard({super.key, required this.title, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +16,7 @@ class RoomCard extends StatelessWidget {
         color: kcardColor,
         child: ListTile(
           onTap: () {
+            onTap;
             Navigator.push(
               context,
               MaterialPageRoute(
