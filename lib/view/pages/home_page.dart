@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:spaa/controller/room_controller.dart';
 import 'package:spaa/controller/user_controller.dart';
-import 'package:spaa/core/infra/http/http_adapter.dart';
 import 'package:spaa/view/pages/room_page.dart';
 import 'package:spaa/view/widgets/room_card.dart';
 import 'package:spaa/core/styles/app_fonts.dart';
@@ -16,15 +14,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final HttpAdapter http = HttpAdapter(Client());
-  late UserController userController;
   late RoomController roomController;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // Initialize controllers here
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       roomController = context.read<RoomController>();
       await roomController.getRooms();
@@ -33,12 +28,6 @@ class _HomePageState extends State<HomePage> {
       });
     });
   }
-
-  // Future<void> _loadRooms() async {
-  //   userController = Provider.of<UserController>(context, listen: false);
-  //   roomController = Provider.of<RoomController>(context, listen: false);
-  //   await roomController.getRooms();
-  // }
 
   @override
   Widget build(BuildContext context) {

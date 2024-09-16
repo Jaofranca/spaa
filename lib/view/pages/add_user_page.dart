@@ -13,8 +13,6 @@ class AddUserPage extends StatefulWidget {
 }
 
 class _AddUserPageState extends State<AddUserPage> {
-  late UserController userController;
-  late RoomController roomController;
   bool _isLoading = true;
   List<bool> selectedIndex = [];
   List<User?> _selectedRows = [];
@@ -24,10 +22,11 @@ class _AddUserPageState extends State<AddUserPage> {
     super.initState();
     // Initialize controllers here
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      roomController = context.read<RoomController>();
-      userController = context.read<UserController>();
-      await userController.getUsers();
-      selectedIndex = List.filled(userController.users.length, false);
+      final userController = context.read<UserController>();
+      await userController
+          .getUsersWithoutRoom(context.read<RoomController>().selectedRoom);
+      selectedIndex =
+          List.filled(userController.unsellectedUsers.length, false);
       setState(() {
         _isLoading = false;
       });
@@ -42,101 +41,113 @@ class _AddUserPageState extends State<AddUserPage> {
       );
     }
 
-    return SafeArea(
-      child: Scaffold(
-        floatingActionButton: IconButton(
-          onPressed: () {},
-          icon: const Icon(
-            Icons.check,
-            size: 40,
-          ),
-          color: Colors.blueAccent,
-        ),
-        appBar: AppBar(
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.add),
-            )
-          ],
-          centerTitle: true,
-          title: Text(
-            "Adicione Usuários",
-            style: Theme.of(context)
-                .textTheme
-                .bigText
-                .copyWith(fontWeight: FontWeight.bold),
-          ),
-        ),
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: SizedBox(
-                width: constraints.maxWidth,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    DataTable(columns: [
-                      DataColumn(
-                        label: Text(
-                          "Nome",
-                          style: Theme.of(context).textTheme.smallText,
-                        ),
-                      ),
-                      DataColumn(
-                          label: Text(
-                        "Identificador",
-                        style: Theme.of(context).textTheme.smallText,
-                      )),
-                    ], rows: [
-                      for (int i = 0;
-                          i < context.read<UserController>().users.length;
-                          i++) ...[
-                        DataRow(
-                            // selected: selectedIndex[i],
-                            onSelectChanged: (bool? selected) {
-                              setState(() {
-                                selectedIndex[i] = selected ?? false;
-                                selected == true
-                                    ? _selectedRows.add(User(
-                                        name: userController.users[i].name,
-                                        accessId:
-                                            userController.users[i].accessId,
-                                        identification: userController
-                                            .users[i].identification))
-                                    : _selectedRows.removeWhere(
-                                        (item) =>
-                                            item!.accessId ==
-                                            userController.users[i].accessId,
-                                      );
-                              });
-                            },
-                            cells: [
-                              DataCell(
-                                Text(userController.users[i].name,
-                                    style:
-                                        Theme.of(context).textTheme.smallText),
-                              ),
-                              DataCell(
-                                Text(
-                                  userController.users[i].identification,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .smallText
-                                      .copyWith(fontSize: 12),
-                                ),
-                              ),
-                            ],
-                            onLongPress: () {})
-                      ]
-                    ])
-                  ],
-                ),
+    return Consumer<RoomController>(builder: (context, roomController, child) {
+      return Consumer<UserController>(
+          builder: (context, userController, child) {
+        return SafeArea(
+          child: Scaffold(
+            floatingActionButton: IconButton(
+              onPressed: () async {
+                for (var i in _selectedRows) {
+                  await roomController.addUser(
+                      roomController.selectedRoom.id, i!);
+                }
+                Navigator.pop(context);
+              },
+              icon: const Icon(
+                Icons.check,
+                size: 40,
               ),
-            );
-          },
-        ),
-      ),
-    );
+              color: Colors.blueAccent,
+            ),
+            appBar: AppBar(
+              centerTitle: true,
+              title: Text(
+                "Adicione Usuários",
+                style: Theme.of(context)
+                    .textTheme
+                    .bigText
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            body: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: SizedBox(
+                    width: constraints.maxWidth,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        DataTable(columns: [
+                          DataColumn(
+                            label: Text(
+                              "Nome",
+                              style: Theme.of(context).textTheme.smallText,
+                            ),
+                          ),
+                          DataColumn(
+                              label: Text(
+                            "Identificador",
+                            style: Theme.of(context).textTheme.smallText,
+                          )),
+                        ], rows: [
+                          for (int i = 0;
+                              i < userController.unsellectedUsers.length;
+                              i++) ...[
+                            DataRow(
+                                selected: selectedIndex[i],
+                                onSelectChanged: (bool? selected) {
+                                  setState(() {
+                                    selectedIndex[i] = selected ?? false;
+                                    selected == true
+                                        ? _selectedRows.add(User(
+                                            name: userController
+                                                .unsellectedUsers[i].name,
+                                            accessId: userController
+                                                .unsellectedUsers[i].accessId,
+                                            identification: userController
+                                                .unsellectedUsers[i]
+                                                .identification))
+                                        : _selectedRows.removeWhere(
+                                            (item) =>
+                                                item!.accessId ==
+                                                userController
+                                                    .unsellectedUsers[i]
+                                                    .accessId,
+                                          );
+                                  });
+                                },
+                                cells: [
+                                  DataCell(
+                                    Text(
+                                        userController.unsellectedUsers[i].name,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .smallText),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      userController
+                                          .unsellectedUsers[i].identification,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .smallText
+                                          .copyWith(fontSize: 12),
+                                    ),
+                                  ),
+                                ],
+                                onLongPress: () {})
+                          ]
+                        ])
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      });
+    });
   }
 }

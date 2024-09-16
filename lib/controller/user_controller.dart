@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:spaa/controller/consts/constants.dart';
 import 'package:spaa/core/data/http/http.dart';
 import 'package:spaa/core/enums/methods_enum.dart';
+import 'package:spaa/model/room.dart';
 import 'package:spaa/model/user.dart';
 
 class UserController extends ChangeNotifier {
@@ -9,6 +10,7 @@ class UserController extends ChangeNotifier {
   UserController(this.httpClient);
 
   List<User> users = [];
+  List<User> unsellectedUsers = [];
 
   Future<List<User>> getUsers() async {
     try {
@@ -29,7 +31,7 @@ class UserController extends ChangeNotifier {
     }
   }
 
-  Future<List<User>> getUsersWithoutRoom() async {
+  Future<List<User>> getUsersWithoutRoom(Room room) async {
     try {
       final response = await httpClient.request(
           url: '${AppConstants.appUrl}/user', method: MethodEnum.get);
@@ -40,13 +42,24 @@ class UserController extends ChangeNotifier {
           },
         ),
       );
-      users = usersList;
+
+      var onlyInList1 = usersList
+          .where((user) => !room.users.any(
+                (roomUser) => roomUser.accessId == user.accessId,
+              ))
+          .toList();
+
+      unsellectedUsers = onlyInList1;
 
       notifyListeners();
-      return usersList;
+      return unsellectedUsers;
     } on HttpError {
       rethrow;
     }
+  }
+
+  void setUnsellectedUsers(List<User> users) {
+    unsellectedUsers = users;
   }
 
   void deleteUser() async {}

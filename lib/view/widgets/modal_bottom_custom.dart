@@ -3,7 +3,9 @@ import 'package:spaa/core/styles/app_colors.dart';
 import 'package:spaa/core/styles/app_fonts.dart';
 
 class ModalBottomCustom extends StatelessWidget {
-  const ModalBottomCustom({super.key});
+  const ModalBottomCustom({super.key, required this.onRemove});
+
+  final void Function() onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -31,18 +33,18 @@ class ModalBottomCustom extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                ElevatedButton(
-                  child: Text('Editar',
-                      style: Theme.of(context).textTheme.smallText),
-                  onPressed: () => Navigator.pop(context),
-                ),
+                // ElevatedButton(
+                //   child: Text('Editar',
+                //       style: Theme.of(context).textTheme.smallText),
+                //   onPressed: () => Navigator.pop(context),
+                // ),
                 const SizedBox(
                   width: 20,
                 ),
                 ElevatedButton(
-                  child: Text('Deletar',
+                  onPressed: onRemove,
+                  child: Text('Remover da sala',
                       style: Theme.of(context).textTheme.smallText),
-                  onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),

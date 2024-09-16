@@ -38,6 +38,21 @@ class HttpAdapter implements HttpClient {
             headers: headers,
           );
           break;
+
+        case MethodEnum.delete:
+          response = await client.delete(
+            Uri.parse(url),
+            headers: headers,
+          );
+          break;
+
+        case MethodEnum.put:
+          response = await client.put(
+            Uri.parse(url),
+            headers: headers,
+            body: jsonBody,
+          );
+          break;
         default:
           break;
       }

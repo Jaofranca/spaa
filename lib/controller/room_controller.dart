@@ -3,6 +3,7 @@ import 'package:spaa/controller/consts/constants.dart';
 import 'package:spaa/core/data/http/http.dart';
 import 'package:spaa/core/enums/methods_enum.dart';
 import 'package:spaa/model/room.dart';
+import 'package:spaa/model/user.dart';
 
 class RoomController extends ChangeNotifier {
   final HttpClient httpClient;
@@ -52,13 +53,26 @@ class RoomController extends ChangeNotifier {
     }
   }
 
-  Future<void> removeUser(String roomId, String userAccessId) async {
+  Future<void> addUser(int roomId, User user) async {
     try {
       var request = await httpClient.request(
-          url: '${AppConstants.appUrl}/Room/$roomId/removeUser/$userAccessId',
+          url: '${AppConstants.appUrl}/Room/$roomId/addUser/${user.accessId}',
+          method: MethodEnum.post);
+      if (request.isNotEmpty) {
+        selectedRoom.users.add(user);
+      }
+      notifyListeners();
+    } on HttpError {
+      rethrow;
+    }
+  }
+
+  Future<void> removeUser(int roomId, String userAccessId) async {
+    try {
+      var request = await httpClient.request(
+          url: '${AppConstants.appUrl}/room/$roomId/removeUser/$userAccessId',
           method: MethodEnum.delete);
       if (request.isNotEmpty) {
-        var selectedRoom = rooms.firstWhere((element) => element.id == roomId);
         selectedRoom.users
             .removeWhere((element) => element.accessId == userAccessId);
       }
