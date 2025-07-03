@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spaa/controller/room_controller.dart';
-import 'package:spaa/controller/user_controller.dart';
 import 'package:spaa/view/pages/room_page.dart';
 import 'package:spaa/view/widgets/room_card.dart';
 import 'package:spaa/core/styles/app_fonts.dart';
@@ -37,57 +36,60 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    return SafeArea(
-      child: Scaffold(
-        drawer: Drawer(
-          child: ListView(
-            // Important: Remove any padding from the ListView.
-            padding: EdgeInsets.zero,
-            children: const [
-              ListTile(
-                title: Text('Perfil'),
-              ),
-              ListTile(
-                title: Text('Configurações'),
-              ),
-              ListTile(
-                title: Text('School'),
-              ),
-            ],
-          ),
-        ),
-        appBar: AppBar(
-          actions: const [],
-          centerTitle: true,
-          title: Text("Salas",
-              style: Theme.of(context)
-                  .textTheme
-                  .bigText
-                  .copyWith(fontWeight: FontWeight.bold)),
-        ),
-        body: SizedBox(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-              Text(
-                "Escolha sua Sala",
-                style: Theme.of(context).textTheme.mediumText,
-              ),
-              for (var i in context.read<RoomController>().rooms)
-                RoomCard(
-                  title: i.name,
-                  onTap: () {
-                    context.read<RoomController>().selectRoom(i);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const RoomPage(),
-                      ),
-                    );
-                  },
+    return Consumer<RoomController>(builder: (context, roomController, child) {
+      return SafeArea(
+        child: Scaffold(
+          drawer: Drawer(
+            child: ListView(
+              // Important: Remove any padding from the ListView.
+              padding: EdgeInsets.zero,
+              children: const [
+                ListTile(
+                  title: Text('Perfil'),
                 ),
-            ])),
-      ),
-    );
+                ListTile(
+                  title: Text('Configurações'),
+                ),
+                ListTile(
+                  title: Text('School'),
+                ),
+              ],
+            ),
+          ),
+          appBar: AppBar(
+            actions: const [],
+            centerTitle: true,
+            title: Text("Salas",
+                style: Theme.of(context)
+                    .textTheme
+                    .bigText
+                    .copyWith(fontWeight: FontWeight.bold)),
+          ),
+          body: SizedBox(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                Text(
+                  "Escolha sua Sala",
+                  style: Theme.of(context).textTheme.mediumText,
+                ),
+                for (var i in context.read<RoomController>().rooms)
+                  RoomCard(
+                    title: i.name,
+                    usersCount: i.users.length.toString(),
+                    onTap: () {
+                      context.read<RoomController>().selectRoom(i);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RoomPage(),
+                        ),
+                      );
+                    },
+                  ),
+              ])),
+        ),
+      );
+    });
   }
 }

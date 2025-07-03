@@ -16,6 +16,10 @@ class RoomController extends ChangeNotifier {
     users: [],
   );
 
+  void updateRoom() {
+    notifyListeners();
+  }
+
   void selectRoom(Room room) {
     selectedRoom = room;
     notifyListeners();
@@ -24,17 +28,21 @@ class RoomController extends ChangeNotifier {
   Future<List<Room>> getRooms() async {
     try {
       final response = await httpClient.request(
-          url: '${AppConstants.appUrl}/room', method: MethodEnum.get);
-      final List<Room> RoomList = List.from(
+          url:
+              // 'https://rfidbackend-production-d880.up.railway.app/api/room'
+
+              '${AppConstants.appUrl}/room',
+          method: MethodEnum.get);
+      final List<Room> roomList = List.from(
         response['rooms'].map(
           (room) {
             return Room.fromMap(room);
           },
         ),
       );
-      rooms = RoomList;
+      rooms = roomList;
       notifyListeners();
-      return RoomList;
+      return roomList;
     } on HttpError {
       rethrow;
     }

@@ -1,3 +1,3 @@
 class AppConstants {
-  static const appUrl = "https://rfidbackend-production.up.railway.app/api";
+  static const appUrl = "";
 }

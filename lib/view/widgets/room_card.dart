@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:spaa/core/styles/app_colors.dart';
 import 'package:spaa/core/styles/app_fonts.dart';
-import 'package:spaa/view/pages/room_page.dart';
 
 class RoomCard extends StatelessWidget {
   final String title;
+  final String usersCount;
   final void Function() onTap;
-  const RoomCard({super.key, required this.title, required this.onTap});
+  const RoomCard(
+      {super.key,
+      required this.title,
+      required this.onTap,
+      required this.usersCount});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +24,7 @@ class RoomCard extends StatelessWidget {
             title,
             style: Theme.of(context).textTheme.mediumText,
           ),
-          subtitle: const Text("Laboratório 2"),
+          subtitle: Text("Quantidade de usuários: " '$usersCount'),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

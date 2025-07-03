@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:spaa/controller/room_controller.dart';
-import 'package:spaa/controller/user_controller.dart';
-import 'package:spaa/core/infra/http/http_adapter.dart';
 
 import 'package:spaa/core/styles/app_fonts.dart';
 import 'package:spaa/view/pages/add_user_page.dart';
@@ -17,72 +14,96 @@ class RoomPage extends StatefulWidget {
 }
 
 class _RoomPageState extends State<RoomPage> {
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final roomController = context.read<RoomController>();
-      await roomController.getRooms();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<RoomController>(builder: (context, roomController, child) {
-      return SafeArea(
-        child: Scaffold(
-          appBar: AppBar(
-            actions: [
-              IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddUserPage(),
-                      ),
-                    );
-                    setState(() {});
-                  },
-                  icon: const Icon(Icons.add))
-            ],
-            centerTitle: true,
-            title: Text(
-              "Usuários",
-              style: Theme.of(context)
-                  .textTheme
-                  .bigText
-                  .copyWith(fontWeight: FontWeight.bold),
-            ),
-          ),
-          body: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: SizedBox(
-                  width: constraints.maxWidth,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      DataTable(columns: [
-                        DataColumn(
-                          label: Text(
-                            "Nome",
-                            style: Theme.of(context).textTheme.smallText,
-                          ),
+      return PopScope(
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) {
+            // roomController.updateRoom();
+            return;
+          }
+        },
+        child: SafeArea(
+          child: Scaffold(
+            appBar: AppBar(
+              actions: [
+                IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AddUserPage(),
                         ),
-                        DataColumn(
+                      );
+                      setState(() {});
+                    },
+                    icon: const Icon(Icons.add))
+              ],
+              centerTitle: true,
+              title: Text(
+                "Usuários",
+                style: Theme.of(context)
+                    .textTheme
+                    .bigText
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            body: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: SizedBox(
+                    width: constraints.maxWidth,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        DataTable(columns: [
+                          DataColumn(
                             label: Text(
-                          "Identificador",
-                          style: Theme.of(context).textTheme.smallText,
-                        )),
-                      ], rows: [
-                        for (var i in roomController.selectedRoom.users)
-                          DataRow(cells: [
-                            DataCell(
-                              Text(i.name,
-                                  style: Theme.of(context).textTheme.smallText),
-                              onTap: () {
+                              "Nome",
+                              style: Theme.of(context).textTheme.smallText,
+                            ),
+                          ),
+                          DataColumn(
+                              label: Text(
+                            "Identificador",
+                            style: Theme.of(context).textTheme.smallText,
+                          )),
+                        ], rows: [
+                          for (var i in roomController.selectedRoom.users)
+                            DataRow(cells: [
+                              DataCell(
+                                Text(i.name,
+                                    style:
+                                        Theme.of(context).textTheme.smallText),
+                                onTap: () {
+                                  showModalBottomSheet<void>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return ModalBottomCustom(
+                                        onRemove: () async {
+                                          await roomController.removeUser(
+                                              context
+                                                  .read<RoomController>()
+                                                  .selectedRoom
+                                                  .id,
+                                              i.accessId);
+                                          Navigator.pop(context);
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                                // showEditIcon: true
+                              ),
+                              DataCell(
+                                  Text(
+                                    i.identification,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .smallText
+                                        .copyWith(fontSize: 12),
+                                  ), onTap: () {
                                 showModalBottomSheet<void>(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -99,41 +120,15 @@ class _RoomPageState extends State<RoomPage> {
                                     );
                                   },
                                 );
-                              },
-                              // showEditIcon: true
-                            ),
-                            DataCell(
-                                Text(
-                                  i.identification,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .smallText
-                                      .copyWith(fontSize: 12),
-                                ), onTap: () {
-                              showModalBottomSheet<void>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return ModalBottomCustom(
-                                    onRemove: () async {
-                                      await roomController.removeUser(
-                                          context
-                                              .read<RoomController>()
-                                              .selectedRoom
-                                              .id,
-                                          i.accessId);
-                                      Navigator.pop(context);
-                                    },
-                                  );
-                                },
-                              );
-                            }),
-                          ], onLongPress: () {})
-                      ])
-                    ],
+                              }),
+                            ], onLongPress: () {})
+                        ])
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       );
